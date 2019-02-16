@@ -2102,6 +2102,16 @@ write@1.0.3:
   dependencies:
     mkdirp "^0.5.1"
 
+"xstate-4.2@npm:xstate@4.2.4":
+  version "4.2.4"
+  resolved "https://registry.yarnpkg.com/xstate/-/xstate-4.2.4.tgz#dc19662f54d30cf67443ca6ca398201ca780bf5c"
+  integrity sha512-aQt1yH9QLV5SpoKumpL/V0EvJlqJRQSv8osxG2YRlCWL2TnSE0OapYkGkDe1WaH5a9thJoVpF60ToqOd5b7xTQ==
+
+"xstate-4.3@npm:xstate@4.3.2", xstate@^4.3.2:
+  version "4.3.2"
+  resolved "https://registry.yarnpkg.com/xstate/-/xstate-4.3.2.tgz#772a5f10b80e96f3dd872bedd45bc5bcfd0d2692"
+  integrity sha512-xm01SXhV4/LmxTLOOuhQfdWLFXzl/6fi3DEY6P1WxnuCDJZ/NsSvSggNmKddOTKgGXJgA/5aWxFturJsExV9cw==
+
 xtend@^4.0.0:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/xtend/-/xtend-4.0.1.tgz#a5c6d532be656e23db820efb943a1f04998d63af"

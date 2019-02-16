@@ -24,6 +24,9 @@
     "split": "^1.0.1",
     "typescript": "^3.3.3",
     "winston": "^3.2.1",
+    "xstate": "^4.3.2",
+    "xstate-4.3": "npm:xstate@4.3.2",
+    "xstate-4.2": "npm:xstate@4.2.4",
     "xxhash": "^0.2.4"
   },
   "devDependencies": {

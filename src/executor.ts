@@ -1,7 +1,7 @@
 import * as subprocess from "child_process";
 import { logger } from "./logger";
 
-const NODE_BINARY = "/Users/airhorns/.config/nvm/11.10.0/bin/node";
+const NODE_BINARY = process.execPath;
 
 export class Executor {
   hash: string;
@@ -20,6 +20,7 @@ export class Executor {
     this.hash = hash;
     this.script = script;
     this.timeout = 2000;
+
     const args = ["--no-warnings", "build/harness.js"];
     logger.log("debug", `=>spawn ${NODE_BINARY} ${args}`);
     this.process = subprocess.spawn(NODE_BINARY, args, {

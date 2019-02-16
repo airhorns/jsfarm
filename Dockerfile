@@ -12,8 +12,7 @@ RUN yarn install --prod --frozen-lockfile
 
 # Install build dependencies, build, uninstall build dependencies by rerunning the --prod install
 COPY . /code/
-RUN yarn install --production=false --frozen-lockfile && yarn run build && yarn install --prod --frozen-lockfile
+RUN yarn install --production=false --frozen-lockfile && yarn run build && yarn install --prod --frozen-lockfile && yarn cache clean
 
-ENV SERVER_PORT 3000
 USER nobody
 CMD yarn run serve
