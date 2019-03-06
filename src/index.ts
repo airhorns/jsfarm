@@ -16,7 +16,7 @@ const app = express();
 const execute = async (executor: Executor, args: any) => {
   let result;
   try {
-    result = { success: true, result: await executor.execute(args) };
+    result = { success: true, ...(await executor.execute(args)) };
   } catch (error) {
     result = { success: false, error };
   }
@@ -24,7 +24,7 @@ const execute = async (executor: Executor, args: any) => {
   return result;
 };
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: "50mb" }));
 app.use(expressWinston.logger(logger));
 
 app.get("/healthz", (req, res) => res.end("200 OK"));
@@ -36,8 +36,8 @@ app.post("/exec/hash", async (req, res) => {
     const result = await execute(executor, args);
     res.json(result);
   } else {
-    res.type("txt").send("Script hash not found");
     res.status(404);
+    res.type("txt").send("Script hash not found");
   }
 });
 

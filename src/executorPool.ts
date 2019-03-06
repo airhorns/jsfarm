@@ -5,7 +5,7 @@ import xxhash from "xxhash";
 export const hashScript = (script: string) => xxhash.hash(Buffer.from(script, "utf8"), 0xcafebabe);
 
 export class ExecutorPool {
-  pool: LRU.Cache<string, Executor>;
+  pool: LRU<string, Executor>;
 
   constructor() {
     this.pool = new LRU({

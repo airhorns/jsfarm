@@ -1,1 +1,1 @@
-import ncc from "@zeit/ncc";
+// import ncc from "@zeit/ncc";

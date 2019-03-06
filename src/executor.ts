@@ -30,8 +30,8 @@ export class Executor {
     });
     this.process.on("error", this.handleError);
     this.process.on("close", this.handleClose);
-    this.process.stdout.on("data", this.handleData);
-    this.process.stderr.on("data", this.handleStderr);
+    this.process.stdout && this.process.stdout.on("data", this.handleData);
+    this.process.stderr && this.process.stderr.on("data", this.handleStderr);
     this.write({ script });
     this.ready = true;
   }
@@ -45,6 +45,8 @@ export class Executor {
         const message = JSON.parse(str);
         if (message.log) {
           this.currentPromise.logs.push(message.log);
+        } else if (message.error) {
+          this.doRejectOrKill(message.errorMessage);
         } else if (message.complete) {
           this.doResolve(message.result);
         } else {
@@ -122,7 +124,7 @@ export class Executor {
 
   private write(data: any) {
     const json = JSON.stringify(data);
-    logger.log("debug", `<=stdin: ${json}`);
-    this.process.stdin.write(json + "\n");
+    logger.log("debug", `<=stdin: ${json.slice(0, 100)}`);
+    this.process.stdin && this.process.stdin.write(json + "\n");
   }
 }
