@@ -10,7 +10,7 @@ dotenv.config();
 
 import { logger } from "./logger";
 const pool = new ExecutorPool();
-const port = parseInt(process.env.SERVER_PORT || "-1", 10);
+const port = parseInt(process.env.SERVER_PORT || "3006", 10);
 const app = express();
 
 const execute = async (executor: Executor, args: any) => {
