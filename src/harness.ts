@@ -52,15 +52,21 @@ rl.on("line", async (line: string) => {
 
   if (!setup) {
     // Define the execute script from the first message, and execute it with each future argument
-    script = new VMScript(message.script);
+    script = new VMScript(
+      message.script +
+        `
+        module.exports.harness = async (args) => Promise.resolve(module.exports.main.apply(undefined, args)).then(JSON.stringify);
+        `
+    );
+
     setup = true;
   } else {
     console.error(`=== executing ${JSON.stringify(message)}`);
     try {
       const vm = newVM();
       const module = vm.run(script);
-      const result = await Promise.resolve(module.main.apply(undefined, message.args));
-      console.log(JSON.stringify({ complete: true, result }));
+      const result = await module.harness(message.args);
+      console.log(`{ "complete": true, "result": ${result} }`);
     } catch (e) {
       console.error(`=== error executing script, exception follows\n${formatException(e)}`);
       console.log(JSON.stringify({ error: true, errorMessage: formatException(e) }));

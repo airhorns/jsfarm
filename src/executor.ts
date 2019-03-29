@@ -43,7 +43,7 @@ export class Executor {
 
   handleData = (line: Buffer) => {
     const str = line.toString();
-    logger.log("debug", `=>stdout: ${str.trim()}`);
+    logger.log("debug", `==> stdout: ${str.trim()}`);
 
     if (this.currentPromise) {
       try {
@@ -67,7 +67,7 @@ export class Executor {
 
   handleStderr = (line: Buffer) => {
     const str = line.toString();
-    logger.log("debug", `=>stderr: ${str.trim()}`);
+    logger.log("debug", `--> stderr: ${str.trim()}`);
 
     if (this.currentPromise) {
       this.currentPromise.logs.push(str);
@@ -75,17 +75,17 @@ export class Executor {
   };
 
   handleError = (err: Error) => {
-    logger.log("debug", `=>error: ${err}`);
+    logger.log("debug", `==> error: ${err}`);
     this.doRejectOrKill(`Script failed to execute with error "${err}"`);
   };
 
   handleClose = (code: number, signal: string) => {
-    logger.log("debug", `=>close: code: ${code}, signal: ${signal}`);
+    logger.log("debug", `==> close: code: ${code}, signal: ${signal}`);
     this.doRejectOrKill(`Script exited with exit code ${code} with signal ${signal}`);
   };
 
   kill() {
-    logger.log("debug", `<=kill`);
+    logger.log("debug", `<== kill`);
     this.ready = false;
     this.process.kill("SIGTERM");
   }
@@ -128,7 +128,7 @@ export class Executor {
 
   private write(data: any) {
     const json = JSON.stringify(data);
-    logger.log("debug", `<=stdin: ${json.slice(0, 100)}`);
+    logger.log("debug", `<== stdin: ${json.slice(0, 100)}`);
     this.process.stdin && this.process.stdin.write(json + "\n");
   }
 }
