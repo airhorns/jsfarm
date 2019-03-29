@@ -4,7 +4,6 @@ import bodyParser from "body-parser";
 import expressWinston from "express-winston";
 
 import { ExecutorPool, HashNotFoundError } from "./executorPool";
-import { Executor } from "./executor";
 
 dotenv.config();
 

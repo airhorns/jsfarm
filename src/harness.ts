@@ -5,7 +5,8 @@
 // - executes the untrusted script to define the main function
 // - blocks on reading new messages in to execute using the main function
 import readline from "readline";
-import vm from "vm";
+import { NodeVM, VMScript } from "vm2";
+
 let setup = false;
 let script: any;
 
@@ -29,14 +30,18 @@ const logger = (level: string) => {
   };
 };
 
-const sandboxConsole = {
-  log: logger("log"),
-  info: logger("info"),
-  error: logger("error"),
-  debug: logger("debug")
+const newVM = () => {
+  const vm = new NodeVM({
+    console: "redirect",
+    sandbox: { module: {} }
+  });
+  ["debug", "log", "info", "warn", "error"].forEach(level => {
+    vm.on(`console.${level}`, logger(level));
+  });
+  return vm;
 };
 
-rl.on("line", (line: string) => {
+rl.on("line", async (line: string) => {
   let message;
   try {
     message = JSON.parse(line);
@@ -47,28 +52,23 @@ rl.on("line", (line: string) => {
 
   if (!setup) {
     // Define the execute script from the first message, and execute it with each future argument
-    script = new vm.Script(message.script);
+    script = new VMScript(message.script);
     setup = true;
   } else {
     console.error(`=== executing ${JSON.stringify(message)}`);
     try {
-      const sandbox = {
-        module: {},
-        process: { env: {} },
-        jsfarm: { args: message.args },
-        global: {},
-        console: sandboxConsole
-      };
-      sandbox.global = sandbox;
-
-      vm.createContext(sandbox);
-      script.runInContext(sandbox);
-
-      const result = vm.runInContext("module.exports.main.apply(undefined, jsfarm.args);", sandbox);
+      const vm = newVM();
+      const module = vm.run(script);
+      const result = await Promise.resolve(module.main.apply(undefined, message.args));
       console.log(JSON.stringify({ complete: true, result }));
     } catch (e) {
       console.error(`=== error executing script, exception follows\n${formatException(e)}`);
       console.log(JSON.stringify({ error: true, errorMessage: formatException(e) }));
     }
   }
+});
+
+process.on("uncaughtException", e => {
+  console.error(`=== async error executing script, exception follows\n${formatException(e)}`);
+  console.log(JSON.stringify({ error: true, errorMessage: formatException(e) }));
 });

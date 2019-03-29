@@ -3,6 +3,11 @@ import { logger } from "./logger";
 
 const NODE_BINARY = process.execPath;
 
+export interface Result {
+  result: any;
+  logs: [string];
+}
+
 export class Executor {
   hash: string;
   script: string;
@@ -22,7 +27,7 @@ export class Executor {
     this.timeout = 2000;
 
     const args = ["--no-warnings", "build/harness.js"];
-    logger.log("debug", `=>spawn ${NODE_BINARY} ${args}`);
+    logger.log("debug", `=>spawn ${NODE_BINARY} ${args}.join(" ")`);
     this.process = subprocess.spawn(NODE_BINARY, args, {
       detached: false,
       shell: false,
@@ -111,12 +116,11 @@ export class Executor {
     const timeout = setTimeout(() => {
       if (this.currentPromise) {
         logger.log("debug", "Script execution timed out");
-        this.kill();
         this.doRejectOrKill(`Script execution timed out after ${this.timeout}ms`);
       }
     }, this.timeout);
 
-    return new Promise((resolve, reject) => {
+    return new Promise<Result>((resolve, reject) => {
       this.currentPromise = { resolve, reject, timeout, logs: [] };
       this.write({ args });
     });

@@ -21,7 +21,7 @@ export class ExecutorPool {
   async executeHash(hash: string, args: any) {
     const pool = this.perScriptPoolCache.get(hash);
     if (!pool) {
-      throw new HashNotFoundError();
+      throw new HashNotFoundError(`Hash ${hash} not found in executors`);
     }
 
     return this.executeUsingPool(pool, args);
@@ -53,6 +53,10 @@ export class ExecutorPool {
     }
 
     return this.executeUsingPool(pool, args);
+  }
+
+  async drain() {
+    return await Promise.all(this.perScriptPoolCache.values().map(pool => pool.drain().then(() => pool.clear())));
   }
 
   private async executeUsingPool(pool: genericPool.Pool<Executor>, args: any) {

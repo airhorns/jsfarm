@@ -1,1 +1,1 @@
-declare module '@zeit/ncc';
+declare module "@zeit/ncc";
