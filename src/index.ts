@@ -2,12 +2,12 @@ import dotenv from "dotenv";
 import express from "express";
 import bodyParser from "body-parser";
 import expressWinston from "express-winston";
-
+import { getJSFarmVersion } from "./utils";
 import { ExecutorPool, HashNotFoundError } from "./executorPool";
-
 dotenv.config();
-
 import { logger } from "./logger";
+
+const version = getJSFarmVersion();
 const pool = new ExecutorPool();
 const port = parseInt(process.env.SERVER_PORT || "3006", 10);
 const app = express();
@@ -42,6 +42,16 @@ app.post("/exec/script", async (req, res) => {
   }
 });
 
-app.listen(port, "0.0.0.0", () => {
-  logger.log("info", `server started at http://0.0.0.0:${port}`);
+const server = app.listen(port, "0.0.0.0", () => {
+  logger.log("info", `server version ${version} started at http://0.0.0.0:${port}`);
 });
+
+const shutdownHandler = async () => {
+  console.log("received shutdown signal, draining pool");
+  await server.close();
+  await pool.drain();
+  process.exit(0);
+};
+
+process.on("SIGTERM", shutdownHandler);
+process.on("SIGINT", shutdownHandler);
