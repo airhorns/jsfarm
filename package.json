@@ -7,7 +7,8 @@
     "dev": "ts-node-dev --respawn --transpileOnly ./src/index.ts",
     "build": "tsc",
     "lint": "tsc --noEmit && prettier --check \"src/*.{js,ts,tsx}\" \"src/**/*.{js,ts,tsx}\" && eslint --ext js,ts,tsx src",
-    "lintfix": "prettier --write \"src/*.{js,ts,tsx}\" \"src/**/*.{js,ts,tsx}\" && eslint --ext js,ts,tsx --fix src"
+    "lintfix": "prettier --write \"src/*.{js,ts,tsx}\" \"src/**/*.{js,ts,tsx}\" && eslint --ext js,ts,tsx --fix src",
+    "docker-build": "docker build -t airhorns/jsfarm:latest . && docker push airhorns/jsfarm:latest"
   },
   "author": "Harry Brundage",
   "license": "MIT",
