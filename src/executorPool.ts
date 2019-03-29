@@ -37,7 +37,7 @@ export class ExecutorPool {
             return Promise.resolve(new Executor(hash, script));
           },
           destroy(executor) {
-            return Promise.resolve(executor.kill());
+            return Promise.resolve(executor.kill("draining parent pool"));
           },
           validate(executor) {
             return Promise.resolve(executor.ready);
@@ -61,10 +61,6 @@ export class ExecutorPool {
 
   private async executeUsingPool(pool: genericPool.Pool<Executor>, args: any) {
     const executor = await pool.acquire();
-    try {
-      return executor.execute(args);
-    } finally {
-      pool.release(executor);
-    }
+    return executor.execute(args).finally(() => pool.release(executor));
   }
 }

@@ -5,7 +5,7 @@ import expressWinston from "express-winston";
 import { getJSFarmVersion } from "./utils";
 import { ExecutorPool, HashNotFoundError } from "./executorPool";
 dotenv.config();
-import { logger } from "./logger";
+import { logger } from "./loggers";
 
 const version = getJSFarmVersion();
 const pool = new ExecutorPool();
