@@ -1,0 +1,95 @@
+version: 2.1
+orbs:
+  gcp-cli: circleci/gcp-cli@1.3.0
+jobs:
+  lint:
+    docker:
+      - image: circleci/node:11.10
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - restore_cache: &node_dependencies_restore_cache
+          keys:
+            - node-v1-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - node-v1-dependencies-{{ .Branch }}-
+            - node-v1-dependencies
+      - run: &node_dependencies
+          name: Install node dependencies
+          command: yarn install --frozen-lockfile
+      - save_cache:
+          paths:
+            - ~/.cache/yarn
+          key: node-v1-dependencies-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      - run:
+          name: Run javascript linters
+          command: yarn run lint
+
+  test:
+    docker:
+      - image: circleci/node:11.9
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - restore_cache: *node_dependencies_restore_cache
+      - run: *node_dependencies
+      - run: &build
+          name: Build JavaScript
+          command: yarn run build
+      - run:
+          name: Run tests
+          command: JEST_JUNIT_OUTPUT_DIR=test/reports yarn run test --ci --reporters=default --reporters=jest-junit
+      - store_test_results:
+          path: test/reports
+
+  build_docker:
+    docker:
+      - image: circleci/node
+    working_directory: ~/repo
+    steps:
+      - setup_remote_docker
+      - checkout
+      - run:
+          name: Build docker container
+          command: docker build -t gcr.io/gadget-core-production/jsfarm:$CIRCLE_SHA1 .
+      - gcp-cli/install
+      - gcp-cli/initialize
+      - run:
+          name: Push docker container
+          command: gcloud auth configure-docker && docker push gcr.io/gadget-core-production/jsfarm:$CIRCLE_SHA1
+
+  deploy:
+    docker:
+      - image: circleci/ruby:2.6.2-node
+    steps:
+      - gcp-cli/install
+      - gcp-cli/initialize
+      - checkout
+      - run:
+          name: Get deploy dependencies
+          command: bundle install
+      - run:
+          name: Configure gcloud k8s context
+          command: |
+            sudo apt-get install kubectl
+            gcloud container clusters get-credentials alpha
+      - run:
+          name: Deploy
+          command: deploy/deploy.sh
+
+workflows:
+  version: 2
+  build_test_push:
+    jobs:
+      - lint
+      - test
+      - build_docker:
+          context: gadget-gke
+      - deploy:
+          context: gadget-gke
+          requires:
+            - test
+            - lint
+            - build_docker
+          filters:
+            branches:
+              only: master

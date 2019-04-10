@@ -1,0 +1,52 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: farm
+  name: farm
+spec:
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 3006
+  selector:
+    service: farm
+  type: LoadBalancer
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    service: farm
+  name: farm
+spec:
+  replicas: 3
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        service: farm
+    spec:
+      containers:
+        - name: jsfarm
+          args:
+            - node
+            - build/index.js
+          env:
+            - name: SERVER_PORT
+              value: "3006"
+          image: gcr.io/gadget-core-production/jsfarm:<%= current_sha %>
+          ports:
+            - containerPort: 3006
+          resources: {}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 3006
+            periodSeconds: 1
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 10
+      restartPolicy: Always
