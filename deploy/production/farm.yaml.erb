@@ -36,6 +36,11 @@ spec:
           env:
             - name: SERVER_PORT
               value: "3006"
+            - name: HONEYCOMB_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: application-secrets
+                  key: HONEYCOMB_API_KEY
           image: gcr.io/gadget-core-production/jsfarm:<%= current_sha %>
           ports:
             - containerPort: 3006

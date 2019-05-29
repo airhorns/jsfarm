@@ -1,10 +1,12 @@
 import dotenv from "dotenv";
+dotenv.config();
+import {} from "./instrumentation";
+
 import express from "express";
 import bodyParser from "body-parser";
 import expressWinston from "express-winston";
 import { getJSFarmVersion } from "./utils";
 import { ExecutorPool, HashNotFoundError } from "./executorPool";
-dotenv.config();
 import { logger } from "./loggers";
 
 const version = getJSFarmVersion();
